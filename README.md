@@ -19,7 +19,7 @@ The **FiveM Map Collision Finder** is a Python script originally created by [put
 ### **1. Clone the Repository**
 To download the script, use the following command:
 ```
-git clone https://github.com/puttydotexe/fivem-map-collision-finder.git
+git clone https://github.com/JimmySackss/fivem-map-collision-finder.git
 ```
 Then 'cd fivem-map-collision-finder'
 
@@ -46,14 +46,14 @@ python checker.py <directory_to_scan> --ignore <ignored_file_patterns> --output 
 
 Example Command
 ```
-python checker.py "C:\FiveMServer\resources" --ignore "*.ydd" --output "C:\Users\admin\Desktop\collision_results.txt"
+python checker.py "C:\FiveMServer\resources" --ignore "*.ydd" --output "C:\Users\Desktop\collision_results.txt"
 ```
 
 Explanation:
 
     C:\FiveMServer\resources → The directory where FiveM map files are stored
     --ignore "*.ydd" → Ignores .ydd files from the scan
-    --output "C:\Users\admin\Desktop\collision_results.txt" → Saves the results to a text file
+    --output "C:\Users\Desktop\collision_results.txt" → Saves the results to a text file
 
 📄 Output Format
 
