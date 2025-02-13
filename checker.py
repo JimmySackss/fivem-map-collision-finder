@@ -25,6 +25,7 @@ import os
 import argparse
 from collections import defaultdict
 import fnmatch
+import datetime
 
 MAP_RELATED_FILES = ["*.ytd", "*.ymt", "*.ydr", "*.ydd", "*.ytyp", "*.ybn", "*.ycd", "*.ymap", "*.ynv", "*.ytyp", "*.ypt"]
 
@@ -38,10 +39,10 @@ def find_collisions(directory, ignored_files=None, output_file=None):
 
             if not any(fnmatch.fnmatch(filename.lower(), pattern.lower()) for pattern in MAP_RELATED_FILES):
                 continue
-            
+
             if ignored_files and any(fnmatch.fnmatch(filename.lower(), pattern.lower()) for pattern in ignored_files):
                 continue
-            
+
             file_key = filename.lower()
             file_dict[file_key].append(file_path)
 
@@ -51,22 +52,37 @@ def find_collisions(directory, ignored_files=None, output_file=None):
                 if len(paths) > 1:
                     f.write(f'Possible collisions: {filename}\n')
                     for path in paths:
-                        f.write(f'   - {path}\n')
+                        try:
+                            if os.path.isfile(path):  # Ensure it's a file
+                                size = os.path.getsize(path)
+                                mod_time = os.path.getmtime(path)
+                                formatted_mod_time = datetime.datetime.fromtimestamp(mod_time).strftime('%Y-%m-%d %H:%M:%S')
+                                f.write(f' - {path} | Size: {size} bytes | Last Modified: {formatted_mod_time}\n')
+                            else:
+                                f.write(f' - {path} | [Error: Not a valid file]\n')
+                        except (FileNotFoundError, PermissionError, OSError) as e:
+                            f.write(f' - {path} | [Error: {str(e)}]\n')
                     f.write('\n')
                     collisions += 1
-
             f.write(f"Total collisions found: {collisions}\n")
-
         print(f"All collisions written to '{output_file}'.")
     else:
         for filename, paths in file_dict.items():
             if len(paths) > 1:
                 print(f'Possible collisions: {filename}')
                 for path in paths:
-                    print(f'   - {path}')
+                    try:
+                        if os.path.isfile(path):  # Ensure it's a file
+                            size = os.path.getsize(path)
+                            mod_time = os.path.getmtime(path)
+                            formatted_mod_time = datetime.datetime.fromtimestamp(mod_time).strftime('%Y-%m-%d %H:%M:%S')
+                            print(f' - {path} | Size: {size} bytes | Last Modified: {formatted_mod_time}')
+                        else:
+                            print(f' - {path} | [Error: Not a valid file]')
+                    except (FileNotFoundError, PermissionError, OSError) as e:
+                        print(f' - {path} | [Error: {str(e)}]')
                 print()
                 collisions += 1
-
         print(f"Total collisions found: {collisions}")
 
 if __name__ == "__main__":
@@ -75,5 +91,4 @@ if __name__ == "__main__":
     parser.add_argument("--ignore", nargs="+", default=[], help="List of file patterns to ignore.")
     parser.add_argument("--output", help="Output file to write the list of collisions to.")
     args = parser.parse_args()
-
     find_collisions(args.directory, ignored_files=args.ignore, output_file=args.output)
